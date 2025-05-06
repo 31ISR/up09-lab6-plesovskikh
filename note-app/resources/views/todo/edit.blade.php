@@ -1,0 +1,1 @@
+note-app/resources/views/todo/create.blade.php note-app/resources/views/todo/edit.blade.php note-app/resources/views/todo/index.blade.php note-app/resources/views/todo/show.blade.php

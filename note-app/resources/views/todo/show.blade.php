@@ -1,3 +1,4 @@
 <x-layout>
-    <h1>welcome</h1>
+    <h1>show</h1>
 </x-layout>
+
