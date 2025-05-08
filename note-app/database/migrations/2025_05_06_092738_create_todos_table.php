@@ -16,7 +16,8 @@ return new class extends Migration
             $table->string('name', 75);
             $table->boolean('done')->default(false);
             $table->boolean('urgent')->default(false);
-            $table->dateTime('date_completed')->nullable();
+            $table->dateTime('dateCompleted')->nullable();
+            $table->foreignId('user_id')->constrained()->onDelete('cascade');
             $table->timestamps();
         });
     }

@@ -17,10 +17,11 @@ class TodoFactory extends Factory
     public function definition(): array
     {
         return [
-            'name' => fake()->sentence(3),
-            'done' => fake()->boolean(),
-            'urgent' => fake()->boolean(),
-            'date_completed' => fake()->boolean() ? fake()->dateTime() : null,
+            'user_id' => \App\Models\User::factory(),
+            'name' => fake()->realText(75),
+            'done' => fake()->boolean,
+            'urgent' => fake()->boolean,
+            'dateCompleted' => fake()->optional()->dateTimeThisYear,
         ];
     }
 }

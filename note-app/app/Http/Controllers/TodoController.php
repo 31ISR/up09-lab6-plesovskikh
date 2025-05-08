@@ -12,7 +12,11 @@ class TodoController extends Controller
      */
     public function index()
     {
-        return 'index';
+        $todos = Todo::query()
+            ->where('user_id', request()->user()->id)
+            ->orderBy('created_at', 'desc')
+            ->paginate();
+        return view('todo.index', ['todos' => $todos]);
     }
 
     /**
@@ -20,7 +24,7 @@ class TodoController extends Controller
      */
     public function create()
     {
-        return 'create';
+        return view('todo.create');
     }
 
     /**
@@ -28,7 +32,21 @@ class TodoController extends Controller
      */
     public function store(Request $request)
     {
-        return 'store';
+        $data = $request->validate([
+            'name' => ['required', 'string', 'max:75'],
+            'done' => ['sometimes', 'boolean'], // Добавляем 'sometimes'
+            'urgent' => ['sometimes', 'boolean'],
+        ]);
+        
+        // Устанавливаем значения по умолчанию, если ключи отсутствуют
+        $data['done'] = $data['done'] ?? false;
+        $data['urgent'] = $data['urgent'] ?? false;
+        
+        $data['user_id'] = $request->user()->id;
+        $data['dateCompleted'] = $data['done'] ? now() : null;
+        
+        $todo = Todo::create($data);
+        return to_route('todo.index')->with('message', 'Todo was created');
     }
 
     /**
@@ -36,7 +54,10 @@ class TodoController extends Controller
      */
     public function show(Todo $todo)
     {
-        return 'show';
+        if ($todo->user_id !== request()->user()->id) {
+            abort(403);
+        }
+        return view('todo.show', ['todo' => $todo]);
     }
 
     /**
@@ -44,7 +65,10 @@ class TodoController extends Controller
      */
     public function edit(Todo $todo)
     {
-        return 'edit';
+        if ($todo->user_id !== request()->user()->id) {
+            abort(403);
+        }
+        return view('todo.edit', ['todo' => $todo]);
     }
 
     /**
@@ -52,7 +76,20 @@ class TodoController extends Controller
      */
     public function update(Request $request, Todo $todo)
     {
-        return 'update';
+        $validated = $request->validate([
+            'name' => 'required|string|max:75',
+            'done' => 'sometimes|boolean',
+            'urgent' => 'sometimes|boolean',
+        ]);
+        
+        // Устанавливаем значения по умолчанию
+        $validated['done'] = $validated['done'] ?? false;
+        $validated['urgent'] = $validated['urgent'] ?? false;
+        
+        $validated['dateCompleted'] = $validated['done'] ? now() : null;
+        
+        $todo->update($validated);
+        return to_route('todo.index')->with('message', 'Todo was updated');
     }
 
     /**
@@ -60,6 +97,10 @@ class TodoController extends Controller
      */
     public function destroy(Todo $todo)
     {
-        return 'destroy';
+        if ($todo->user_id !== request()->user()->id) {
+            abort(403);
+        }
+        $todo->delete();
+        return to_route('todo.index')->with('message', 'Todo was deleted');
     }
 }
